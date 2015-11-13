@@ -27,6 +27,7 @@ then a point at the centroid of the study area is used.  If that cell
 is zero accessibility, however, no isochrone will be produced.
 
 *Running R*
+
 R is served from the Rserve package which must be running as a daemon.
 Installation is easy, see the Rserve documentation:
 https://www.rforge.net/Rserve/doc.html
