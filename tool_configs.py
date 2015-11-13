@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This file manages the NMTK tool configuration.
+This file describes the AccessR Accessibility Raster tool for the NMTK.
 
 As written here, it uses the "function-based" mechanism for
 delivering the tool configuration.
@@ -13,38 +13,9 @@ files and put them in the right template directory, you can remove
 the function and just load the config as a static JSON file.  The file
 will be added to the NMTK when the system is installed, or when you
 run the Django command python manage.py collectstatic.
-
-This file need not contain anything (then the NMTK will just look for
-a pre-built tool_config.json in the app's templates folder).
-
-It can also just contain a single declaration:
-
-tools = []
-
-which is equivalent to the file being empty.
-
-You can put "sub-tool" names into the tools array, and if there
-are configurations for those sub-tools, they will added as separate
-tools to the NMTK, and they will be located "within" the main tool.
-
-A subtool array would look like this:
-
-tools=['tool1','tool2']
-
-Obviously, you must provide a function or configuration files
-for each of the subtools.  If you are providing a function, it
-must do something sensible with the subtool parameter.  If you
-are serving configurations from the file system, the configuration
-files must have names consistent with the subtool names.  So in the
-example subtool array above, we would expect to find files named
-'tool1.json' and 'tool2.json' in the templates directory for the
-tool application.  See the MN_tool sample tool for complete
-details.
 """
 
-# If this tool has no subtools, you can leave out the "tools"
-# list entirely (or just leave it empty as it is here)
-tools = []
+tools = [] # A single configuration contained here
 
 # If tool_configs.py contains the generateToolConfiguration function,
 # that will be used preferentially to generate a Python dictionary
@@ -59,112 +30,90 @@ def generateToolConfiguration(tool,sub_tool=None):
     '''
     return tool_config
 
-# The master configuration for this particular tool that works with
-# the implementation of the generateToolConfiguration function
-# is defined in the following Pdython dictionary.
 tool_config = {
     "info" : {
-        "name" : "Tool Configurator",
-# The text is HTML-formatted text that describes the tool.  The focus here
-# should be the tool implementation itself (i.e. what people have to know to
-# make use of the tool).  If you want to get into background or computational
-# methods, you should use the Documentation links to direct the user to a paper,
-# a website or some other source.
+        "name" : "Accessibility Rasters",
         "text" : """
-<p>The "Configurator" is the place to begin if you're trying to figure out how
-to build an interface description for a Non-Motorized Toolkit (NMTK) tool (what
-we call a "tool configuration" or just a "tool config").</p>
+<p>This tool performs simple raster-based accessibility analysis.</p>
+<p>The input files consist of rasterization parameters (essentially the
+resolution on N-S and E-W directions, plus four geospatial files.</p>
+<p>The tool returns an accessibility surface as a geoTIFF file, and a set
+of isochrones showing accessibility to point locations provided</p>
+<p>The input structure is the folloowing:</P>
+<ol>
+<li>Rasterization parameters (X- and Y-Resolutions)</li>
+<li>A polygon file for the study area (required), with one property:
+    <ul>
+    <li>Either a feature attribute or a constant value to set default accessibility</li>
+    </ul>
+</li>
+<li>A second polygon file for facility areas (optional):
+    <ul>
+    <li>To ignore this file, use the supplied "NoFeatures" sample file</li>
+    <li>A property that identifies either a feature attribute or a constant value as an accessibility increment</li>
+    <li>Positive increments are added to the default accessibility</li>
+    <li>Negative increments are subtracted from the default accessibility</li>
+    </ul>
+</li>
+<li>A line file for road-like paths (optional)
+    <ul>
+    <li>To ignore this file, use the supplied "NoFeatures" sample file</li>
+    <li>A property that identifies either a feature attribute or a constant value as an accessibility increment</li>
+    <li>Positive increments are added to the default accessibility</li>
+    <li>Negative increments are subtracted from the default accessibility</li>
+    </ul>
+<li>A point file of locations from which to compute isochrones:
+    <ul>
+    <li>To ignore this file, use the supplied "NoFeatures" sample file</li>
+    <li>If ignored, no isochrones will be computed</li>
+    <li>Otherwise, an isochrone will be computed for each point</li>
+    <li>A maximum of five isochrones will be computed</li>
+    </ul>
+</li>
+</ol>
 
-<p>This tool demonstrates the essential properties of an NMTK tool configuration
-file.  And the code behind it uses a wide range of NMTK features: working with
-different data types, using different computational engines, performing numeric
-and spatial analysis.  While it does nothing especially useful (it is left as a
-challenge to the reader to figure out how to use it to convert geographic vector
-files into geoJSON format without doing anything else), it does exercise all the
-Tool API elements, including input files, status updates (including updates from
-within running R code) and multiple result files.  Behind the scenes, it also
-gives you a skeleton for a tool and some helper functions that will make tool
-development easier.</p>
-
-<p>Speaking of easy, building an NMTK tool is just easy.  We knocked out the
-basic Configurator tool in an afternoon, and finished the rest of it in a few
-more hours (admittedly, some of the computational code like raster conversion
-was already written).  Writing an NMTK tool is way easier than writing a
-spreadsheet (spreadsheets have no place in responsible scientific research).</p>
-
-<p>The hardest part of building a tool is constructing the configuration file so
-the user can present you with the data you need.  But even a configuration file
-is not especially hard, and you can use the Configurator to learn all you need
-to know about it.</p>
-
-<p>Configurations have five main parts, which broadly track with what you would
-expect to find in a reproducible research repository (q.v.).</p>
+<strong>Return values</strong>
 
 <ol>
-
-<li>The <strong>"info"</strong> section contains an overview of the tool: its
-name, a block of HTML marked-up text that describes it -- that's what you're
-reading now -- and version information.</li>
-
-<li>The <strong>"sample"</strong> section describes sample data and a sample job
-configuration.  You can use that for testing your tool while you're developing
-it so you don't have to repeatedly build job setups by hand, and it will allow
-your users to experience your tool to decide if it might work for them, without
-having to go through an extensive data preparation step of their own.</li>
-
-<li>The <strong>"documentation"</strong> section provides links or files that
-the user can open to learn more about the tool.  This tool has a link to its
-"home base" in Github, so you can download any of the tool code to look at up
-close.  You can also retrieve the configuration file for this tool itself just
-the way an NMTK server would by clicking the "Configuration" link.  Finally, you
-can also download a couple of PDF files: the latest version of the Tool
-Configuration specification, and the introductory document on how to write a
-tool.  In short, the Configurator is your gateway to doing cool stuff with the
-Non-Motorized Toolkit!</li> </ol>
-
-<p>The real action happens in the remaining two sections:</p>
-
-<ol start="4">
-
-<li>The <strong>"input"</strong> section describes what the user has to provide
-to the tool in order to make it work: input files, fields within those files,
-parameters and coefficients, or even literal data to analyze. The input
-configuration says what kinds of files it expects and knows how to work with.
-It says what is required and what is optional.  The help text that goes with
-each of the input elements tells the user concisely what they need to put into
-that element; here in the Configurator, the text focuses on explaining the user
-interface properties.</li>
-
-<li>The <strong>"output"</strong> section describes what the tool is going
-to return.  Though the output section works just like parameter sections in
-the input, these parameters should not change what is computed but rather how
-the results of the computations are returned to the user.  This section can also
-be used (e.g. with readonly result fields) to inform the user of the fixed names
-of result fields or what result types they should expect.</li>
-
+<li>Return a single accumulated accessibility surface as a geoTIFF
+    <ul>
+    <li>The base area</li>
+    <li>Plus the additional polygons</li>
+    <li>Plus the additional roads</li>
+    </ul>
+</li>
+<li>Return the isochrones in a single geoTIFF file
+    <ul>
+    <li>The first band is the multi-isochrone (distance to nearest point)</li>
+    <li>The second and subsequent bands are for each individual point feature</li>
+    </ul>
+</li>
 </ol>
 """,
         "version" : "1.0"
     },
-    "documentation" : {
-        "links" : [
-              {
-                "url":"http://nmtk.jeremyraw.com/Configurator/config",
-                "title":"See the Configurator's raw configuration file"
-              },
-              {
-                "url":"http://github.com/jrawbits/Configurator",
-                "title":"Visit the Configurator source code on Github"
-              },
-        ],
-        "docs" : [
-            {
-                "url" : "ToolSpec_2015-07-31.docx",
-                "mimetype" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "name" : "Tool Configuration Specification (.docx, 2015-07-31)",
-            }
-        ],
-    },
+
+# Future documentation will include the submitted TRB paper/presentation from 2012.
+#     "documentation" : {
+#         "links" : [
+#               {
+#                 "url":"http://nmtk.jeremyraw.com/Configurator/config",
+#                 "title":"See the Configurator's raw configuration file"
+#               },
+#               {
+#                 "url":"http://github.com/jrawbits/Configurator",
+#                 "title":"Visit the Configurator source code on Github"
+#               },
+#         ],
+#         "docs" : [
+#             {
+#                 "url" : "ToolSpec_2015-07-31.docx",
+#                 "mimetype" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+#                 "name" : "Tool Configuration Specification (.docx, 2015-07-31)",
+#             }
+#         ],
+#     },
+
 # The sample section should be developed after the input and output
 # sections. 
     "sample" : {
@@ -201,34 +150,10 @@ of result fields or what result types they should expect.</li>
             # "boolean", or "string" are currently supported) have corresponding
             # values: note that because of JSON limitations, "boolean" types are
             # represented as numeric values of 1 (true) or 0 (false).
-            "computation": {
-                "raiseme" : {
-                    "type" : "property",
-                    "value": "raiseme",
-                },
-                "raiseme2" : {
-                    "type" : "property",
-                    "value": "raiseme2",
-                },
-                "raiseme3" : {
-                    "type" : "property",
-                    "value": "raiseme3",
-                },
-            },
             "rasterize": {
                 "rastervalue" : {
                     "type" : "property",
                     "value": "TAZ",
-                },
-            },
-            "computation_params": {
-                "raisetopower" : {
-                    "type" : "numeric",
-                    "value": 2,
-                },
-                "computetype" : {
-                    "type" : "string",
-                    "value": "Both",
                 },
             },
             "rasterization_params": {
@@ -255,16 +180,6 @@ of result fields or what result types they should expect.</li>
                     "value": 1,
                 },
             },
-            "computation_output" : {
-                "python_result" : {
-                    "type" : "string",
-                    "value": "PowerOfPython",
-                },
-                "r_result" : {
-                    "type" : "string",
-                    "value": "PowerOfR",
-                },
-            },
             "rasterization_output" : {
                 "return_raster" : {
                     "type" : "string",
@@ -289,101 +204,6 @@ of result fields or what result types they should expect.</li>
     },
     "input" : [
         {
-            "type" : "File",              # Elements that can be read in multiple rows from a file
-            "name" : "computation",       # 'name' and 'namespace' are probably redundant
-            "namespace" : "computation",
-            "description" :
-"""
-Data elements that will be transformed using the factors
-""",
-            "primary" : True,             # True if this input can't be missing
-            "label" : "Data used for computation",
-            # "spatial_types" : ["POLYGON","POINT","LINE"] # require specific spatial types
-            # "required" : True           # if true, an actual file must be provided
-            "elements" : [
-              {
-                  "description" : "The data field that will be subjected to computation.",
-                  "default" : 3,
-                  "required" : True,
-                  "label" : "Data to Empower",
-                  "type" : "number",
-                  "name" : "raiseme"
-              },
-              {
-                  "description" : "A second data field that will be subjected to computation.",
-                  "display_if_filled" : "raiseme2",
-                  "default" : 4,
-                  "required" : True,
-                  "label" : "More Data to Empower",
-                  "type" : "number",
-                  "name" : "raiseme2"
-              },
-              {
-                  "description" : "A third data field that will be subjected to computation.",
-                  "display_if_filled" : "raiseme2",
-                  "default" : 5,
-                  "required" : True,
-                  "label" : "Yet More Data to Empower",
-                  "type" : "number",
-                  "name" : "raiseme3"
-              },
-            ],
-        },
-        {
-            "type" : "File",            # Elements that can be read in multiple rows from a file
-            "name" : "rasterize",       # 'name' and 'namespace' are probably redundant
-            "namespace" : "rasterize",
-            "description" :
-"""
-Data file that will be used for rasterization (must be spatial)
-""",
-            "primary" : False,            # True if...
-            "required" : False,           # If true, an actual file must be provided
-            "label" : "Data used for rasterization",
-            # "spatial_types" : ["POLYGON","POINT","LINE"], # require specific spatial types
-            "elements" : [
-              {
-                  "description" : """
-The value to be assigned to raster cells coinciding with the feature.  May be a constant or a file property.
-""",
-                  "default" : 10,
-                  "label" : "Raster Value",
-                  "type" : "number",
-                  "name" : "rastervalue"
-              },
-            ],
-        },
-        {
-            "type" : "ConfigurationPage",  # Elements that are provided as a single instance (global)
-            "name" : "computation_params",
-            "namespace" : "computation_params",
-            "description" :
-"""
-Parameters that control what will be done with the computation data.
-""",
-            "label" : "Computation Parameters",
-            "expanded" : True,
-            "elements" : [
-              {
-                  "description" : "The computation data will be raised to this power.",
-                  "default" : 2,
-                  "required" : True,
-                  "label" : "Power to Raise",
-                  "type" : "number",
-                  "name" : "raisetopower"
-              },
-              {
-                  "description" : "Which computation engines will be used.",
-                  "default" : "Python",
-                  "choices" : [ "Python","R","Both","None" ],
-                  "required" : True,
-                  "label" : "Computation Engines",
-                  "type" : "string",
-                  "name" : "computetype"
-              },
-            ],
-        },
-        {
             "type" : "ConfigurationPage",  # Elements that are provided as a single instance (global)
             "name" : "rasterization_params",
             "namespace" : "rasterization_params",
@@ -394,14 +214,6 @@ Parameters that control how rasterization will be performed.
             "label" : "Rasterization Parameters",
             "expanded" : True,
             "elements" : [
-              {
-                  "description" : "If true, the rasterization will be attempted.",
-                  "default" : 0,
-                  "required" : True,
-                  "label" : "Rasterize",
-                  "type" : "boolean",
-                  "name" : "dorasterize"
-              },
               {
                   "description" : "Number of X (East-West) cells to construct",
                   "default" : 300,
@@ -458,37 +270,6 @@ Parameters that control how rasterization will be performed.
         }
     ], 
     "output" : [
-      {
-        "type":"ConfigurationPage",
-        "name":"computation_output",
-        "namespace":"computation_output",
-        "label":"Computation Field Names",
-        "description":"""
-You may supply alternate base names for the result fields used to hold the computations performed.
-""",
-        "elements":[
-          {
-            "description":"""
-Base field name for results computed by Python (the input field name will be appended after an underscore)
-""",
-            "default":"PowerOfPython",
-            "required":True,
-            "label":"Python Result Basename",
-            "type":"string",
-            "name":"python_result"
-          },
-          {
-            "description":"""
-Base field name for results computed by R (the input field name will be appended after an underscore)
-""",
-            "default":"PowerOfR",
-            "required":True,
-            "label":"R Result Basename",
-            "type":"string",
-            "name":"r_result"
-          }
-        ],
-      },
       {
         "type":"ConfigurationPage",
         "name":"rasterization_output",
