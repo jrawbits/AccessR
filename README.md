@@ -1,35 +1,43 @@
-# AccessTool
+# AccessR
 
-The AccessTool provides a simple NMTK tool for preparing an accessibility
-raster file and conducting simple isochrone accessibility analyses from
+The AccessR tool set provides a simple set of NMTK tools for preparing an
+accessibility map and conducting simple isochrone accessibility analyses from
 a set of points.
 
 This tool can be installed under the name "AccessR" in the NMTK's
 NMTK_apps subfolder, with a corresponding entry in local_settings.py to
 enable the application.
 
-The tool takes an input polygon geographic file and rasterizes it, using
-either feature values or a constant value to provide the base level
-of impedance in each cell.  Any value used for the baseline should be
-greater than zero; a zero value is treated as inaccessible.
+The tool works in three steps.
 
-In addition, it accepts one file of "areas" (optional) and one file of
-"lines" (roads) which modify the base level of accesibility.  These values
-may be positive, negative or zero.  Positive values are added to the
-base accessibility, negative values are substracted, and zero values
-are marked as zero.  Any resulting value less than zero will be treated
-as zero.  If no area or road file is provided, the base accessibility
-map is not altered.
+The first step takes an input polygon geographic file and rasterizes it to
+establish a study area with a base level of accessibility (the units are
+arbitrary).  The tool can use either feature values or a constant value to
+provide the base level of impedance in each cell.  Any value used for the
+baseline should be greater than zero; a zero value is treated as inaccessible.
+This step generates a basic raster file called an "accessibility map".
 
-Finally, the tool accepts a file of points (optional) for which isochrones
-are computed using the accessibility surface.  If no points are provided
-then a point at the centroid of the study area is used.  If that cell
-is zero accessibility, however, no isochrone will be produced.
+The second step accepts a spatial layer (areas, lines or points) and overlays
+those features onto an existing accessibility map. The accessibility map can
+come from the first step, or from a previous iteration of this second step,
+which can be conducted as many times as necessary to include
+different types of facilities or barriers.  The accessibility value of each
+feature (or a constant value applied to all features) is used to update
+the provided accessibility map, and new accessibility map is generated; that
+number should be positive, non-zero value.  Three "styles" of update are provided:
+"Barriers" are areas that will be considered completely untraversable or off-limits.
+Areas occupied by barriers will be considered outside the analysis area.  "Obstacles"
+simply reduce the base accessibility by the accessibility value but still allow
+passage.  "Facilities" increase the base accessibility.
+
+The third step accepts an accessibility map from one of the previous steps, plus
+a file of points for which isochrones are computed using the accessibility map.
 
 *Running R*
 
-R is served from the Rserve package which must be running as a daemon.
-Installation is easy, see the Rserve documentation:
+As the name suggests, the tool uses the R Statistical Environment to perform
+its computations.  R is served from the Rserve package which must be running
+as a daemon. Installation is easy, see the Rserve documentation:
 https://www.rforge.net/Rserve/doc.html
 
 For accessing R from the Python harness, the pyRserve package is used.  Install
