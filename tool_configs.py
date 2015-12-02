@@ -88,7 +88,7 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"rasterize",
-                "checksum": "87d1912e494a454a4fc2330db20b534d5749df87",
+                "checksum": "51f71bba38057fcc0944478ae8237bda7cf9118f",
                 "uri": "/static/AccessR/StudyArea_Vector.zip",
                 "content-type":"application/zip"
             },
@@ -252,13 +252,13 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "b8e0dc1cdacbf206866b36f3c0161a7510c92649",
+                "checksum": "7d3a43a90492a8931f59f081fb6199769b8ef0a0",
                 "uri": "/static/AccessR/StudyArea_Raster.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"overlay",
-                "checksum": "7388001e71e2b4cb7b4f26bc4ab97cd3ad3324b4",
+                "checksum": "c1260eb7d85616321943730a4af22c4972cf7ee1",
                 "uri": "/static/AccessR/StudyArea_Roads.zip",
                 "content-type":"application/zip"
             },
@@ -433,13 +433,13 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "79caa3df8efa5048cac307628a78b9a313566888",
+                "checksum": "a1b1a7d6e736889413626f2912920346f9fbe174",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"points",
-                "checksum": "ea55c899c191a3bdad4fb0e7a42b1a19ae7de7c8",
+                "checksum": "b1c107451b61054f22fe3a0d4bad0aab662a3158",
                 "uri": "/static/AccessR/Points.zip",
                 "content-type":"application/zip"
             },
