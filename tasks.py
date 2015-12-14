@@ -100,6 +100,7 @@ def DoAccess1(job,client):
     require(rgdal)
     require(raster)
     r.raster <- raster(rasterfile)
+    r.raster <- projectRaster(r.raster,crs=CRS("+init=epsg:4326")) # NMTK struggles with rasters not in longlat
     r.vector <- readOGR(vectorfile,layer="OGRGeoJSON")
     r.vector <- spTransform(r.vector,projection(r.raster)) # Force the same projection
     r.over <- rasterize(r.vector,r.raster,field=value)
