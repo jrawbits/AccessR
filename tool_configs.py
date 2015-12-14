@@ -15,7 +15,11 @@ will be added to the NMTK when the system is installed, or when you
 run the Django command python manage.py collectstatic.
 """
 
-tools = ["Access0","Access1","Access2"]
+tools = [
+    "Access0",
+    "Access1",
+#    "Access2",
+]
 
 # Access0 prepares a raster base Accessibility layer from a polygon area
 # Access1 adds an accessibility layer from a vector (or compatible raster) file
@@ -56,7 +60,7 @@ accessibility map and conducting simple isochrone accessibility analyses from a 
 of points.</P>
 
 <P>The Access R tool set works in three steps (the tool you are currently exploring is
-the <strong>FIRST step</strong>:</P>
+the <strong>FIRST step</strong>):</P>
 
 <OL><LI>The first step (this tool) takes an input polygon geographic file and
 rasterizes it to establish a study area with a base level of accessibility (the units
@@ -333,7 +337,7 @@ The value to be assigned to raster cells coinciding with each feature.  May be a
               "namespace":"overlay_type",
               "label":"Overlay Type",
               "description":"""
-Set the Overlay style for this Accessibility layer.
+Set the Overlay Type (method) for this Accessibility layer.
 """,
               "elements":[
                 # Overlay style (choices):
@@ -353,7 +357,7 @@ reduce accessibility, or as Facilities that increase accessibility.  The Accessi
                     "name":"overlay_style",
                   },
               ],
-          }.
+          },
         ],
     "output" : [
             {
@@ -376,7 +380,7 @@ Change the default name for the Accessibility layer.
                   "name":"accessibilityfile",
                 },
               ],
-            },
+           },
         ],
     }
 
@@ -444,26 +448,6 @@ a file of points for which isochrones are computed using the accessibility map.<
                 "content-type":"application/zip"
             },
         ],
-        "config" : {
-            "overlay": {
-                "accessibility" : {
-                    "type" : "numeric",
-                    "value": 6,
-                },
-            },
-            "overlay_type": {
-                "overlay_style" : {
-                    "type" : "string",
-                    "value": "Facility",
-                },
-            },
-            "accessibility_output" : {
-                "accessibilityfile" : {
-                    "type":"string",
-                    "value":"Accessibility",
-                },
-            },
-        },
     },
     "input" : [
         {
@@ -492,8 +476,8 @@ Spatial data file at which to evaluate Accessibility
             "required" : False,           # If true, an actual file must be provided
             "label" : "Points at which to evaluate accessibility",
             "spatial_types" : ["POINT"], # require specific spatial types
-            },
-        ],
+        },
+    ],
     "output" : [
             {
               "type":"ConfigurationPage",
@@ -519,7 +503,14 @@ Change the default name for the Accessibility layer.
         ],
     }
 
-tool_configs = [ Access0, Access1, Access2 ]
+# Expect this to be an array with a config dictionary name in it if no subtools; otherwise
+# it's a dictionary with the key being the subtool name (from the "tools" array) and the
+# value being the dictionary that actually contains the tool config.
+tool_configs = {
+    "Access0" : Access0,
+    "Access1" : Access1,
+    "Access2" : Access2,
+}
 
 # Here's a simple function that you can use to dump the tool
 # configuration file into a JSON file in the templates folder.
