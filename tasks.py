@@ -100,11 +100,71 @@ def DoAccess1(job,client):
     require(rgdal)
     require(raster)
     r.raster <- raster(rasterfile)
-    r.raster <- projectRaster(r.raster,crs=CRS("+init=epsg:4326")) # NMTK struggles with rasters not in longlat
     r.vector <- readOGR(vectorfile,layer="OGRGeoJSON")
     r.vector <- spTransform(r.vector,projection(r.raster)) # Force the same projection
     r.over <- rasterize(r.vector,r.raster,field=value)
     Accessibility <- overlay(r.raster,r.over,fun=overfun)
+    Accessibility <- projectRaster(Accessibility,crs=CRS("+init=epsg:4326")) # NMTK struggles with rasters not in longlat
+    writeRaster(Accessibility,filename=outfile,format="GTiff",overwrite=TRUE)
+    """
+    job.R.r(analysis,void=True)
+
+    # Prepare results
+    if os.path.exists(outputfile):         # File exists, so we should clean it up
+        job.tempfiles.append(outputfile)
+    outputdata             = open(outputfile,"rb")
+    resultfilename         = output.get('accessibilityfile','Accessibility')+".tif"
+    outfiles               = { "Accessibility" : ( resultfilename, outputdata.read(),"image/tiff" ) }
+    outputdata.close()
+
+    results = {}
+    results["result_file"] = "Accessibility"
+    results["files"]       = outfiles
+    return results
+
+def DoCopy1(job,client):
+    "Just copy a raster to output (for debugging projection problem)"
+
+    # Retrieve job configuration
+    overlay = job.getParameters('overlay')  # Properties/Constants for file
+    parameters = job.getParameters('overlay_type')
+    output = job.getParameters('accessibility_output')
+
+    # Retrieve accessibility file (raster)
+    # Retrieve layer file for rasterization and overlay (geoJSON)
+    # Retrieve processing type and install suitable overlay function
+    # Construct temporary file name (and stash for unlinking in wrapper)
+    # Run R analysis
+    job.R.r.rasterfile = job.datafile('accessibility')  # path to input raster
+    job.R.r.vectorfile = job.datafile('overlay')       # path to input vector (for overlay)
+    job.R.r.value      = overlay["accessibility"]      # field name or value for computing raster values
+    outputfile         = os.tempnam()+".tif"           # Temporary file name for output
+    job.R.r.outfile    = outputfile
+
+    # Select overlay functions:
+    #   "Barrier" = turn overlapped cells to NA
+    #   "Obstacle" = turn overlapped cells to minimum of two cell values (NA stays NA)
+    #   "Facility" = turn overlapped cells to maximum of two cell values (NA stays NA)
+    factype = parameters["overlay_style"]
+    if factype in OverlayFunctions:
+        job.R.r("overfun<-"+OverlayFunctions[factype])
+    else:
+        raise Exception("Unknown Overlay Style:",factype)
+#     client.updateStatus(" ".join(("Rasterfile:",rasterfile,"R Rasterfile:",job.R.r.rasterfile)))
+#     client.updateStatus(" ".join(("Vectorfile:",vectorfile,"R Rasterfile:",job.R.r.vectorfile)))
+#     client.updateStatus(" ".join(("Outfile:",outputfile,"R Rasterfile:",job.R.r.outfile)))
+
+    analysis = """
+    require(sp)
+    require(rgdal)
+    require(raster)
+    r.raster <- raster(rasterfile)
+#    r.raster <- projectRaster(r.raster,crs=CRS("+init=epsg:4326")) # NMTK struggles with rasters not in longlat
+#    r.vector <- readOGR(vectorfile,layer="OGRGeoJSON")
+#    r.vector <- spTransform(r.vector,projection(r.raster)) # Force the same projection
+#    r.over <- rasterize(r.vector,r.raster,field=value)
+#    Accessibility <- overlay(r.raster,r.over,fun=overfun)
+    Accessibility <- projectRaster(r.raster,crs=CRS("+init=epsg:4326")) # NMTK struggles with rasters not in longlat
     writeRaster(Accessibility,filename=outfile,format="GTiff",overwrite=TRUE)
     """
     job.R.r(analysis,void=True)
@@ -125,24 +185,30 @@ def DoAccess1(job,client):
 def DoAccess2(job,client):
     "Compute isochrones on an accessibility map from a set of points"
 
+    # Retrieve job configuration
+    # Note: this tool does not use properties of the input files
+    output = job.getParameters('isochrone_output')
+
     # Retrieve accessibility file (raster)
     # Retrieve point file for isochrones (geoJSON)
     # Construct temporary file name (and stash for unlinking in wrapper)
     # Run R analysis
-    r.rasterfile = rasterfile        # path to input raster
-    r.pointfile = points             # path to input vector (for points)
-    r.outfile = os.tempnam()+".tif"  # temporary file to receive output
+    job.R.r.rasterfile = job.datafile('accessibility') # path to input raster
+    job.R.r.pointfile = job.datafile('points')         # path to input vector (for overlay)
+    r.outfile = os.tempnam()+".tif"                    # temporary file to receive output
 
     analysis = """
-    require(rgdal)
     require(sp)
+    require(rgdal)
     require(raster)
     require(gdistance)
     r.raster = raster(rasterfile)
     r.points = readOGR(pointfile,layer="OGRGeoJSON")
+    r.points = spTransform(r.points,projection(r.raster))
 
     # Perform geographic corrections, scaling to X resolution of map
-    # in order to get weighted distances
+    # in order to get weighted distances.
+    # Does this work with EPSG:4326?
     map.unit <- xres(r.raster)
     tr.func <- function(x) mean(x)*map.unit
     tr.matrix <- transition(r.raster,tr.func,8)
@@ -168,17 +234,27 @@ def DoAccess2(job,client):
 
     writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
     """
+    job.R.r(analysis,void=TRUE)
+
+    # Prepare results
+    if os.path.exists(outputfile):         # File exists, so we should clean it up
+        job.tempfiles.append(outputfile)
+    outputdata     = open(outputfile,"rb")
+    resultfilename = output.get('isochronefile','Isochrone')+".tif"
+    outfiles       = { "Isochrone" : ( resultfilename, outputdata.read(),"image/tiff" ) }
+    outputdata.close()
 
     results = {}
-    results["result_file"] = main_result
-    results["outfiles"] = outfiles
+    results["result_file"] = "Isochrone"
+    results["outfiles"]    = outfiles
     return results
 
 # dispatch dictionary
 doSubTool = {
     "Access0" : DoAccess0,
     "Access1" : DoAccess1,
-#    "Access2" : DoAccess2,
+    "Access2" : DoAccess2,
+#    "Copy1"   : DoCopy1,
     }
 
 @task(ignore_result=False)

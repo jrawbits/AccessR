@@ -18,7 +18,8 @@ run the Django command python manage.py collectstatic.
 tools = [
     "Access0",
     "Access1",
-#    "Access2",
+    "Access2",
+#    "Copy1",
 ]
 
 # Access0 prepares a raster base Accessibility layer from a polygon area
@@ -37,7 +38,10 @@ def generateToolConfiguration(tool,sub_tool=None):
     have been used to make tool_config.json
     '''
     if sub_tool:
-        return tool_configs[sub_tool]
+        config = tool_configs[sub_tool]
+#         if sub_tool == "Copy1":
+#             config["info"]["name"] = "Accessibility: Copy"
+        return config
     else:
         return tool_configs[0]
 
@@ -92,7 +96,7 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"rasterize",
-                "checksum": "51f71bba38057fcc0944478ae8237bda7cf9118f",
+                "checksum": "f42ff59dd086e53b9e7513c6a367b0febbc87f27",
                 "uri": "/static/AccessR/StudyArea_Vector.zip",
                 "content-type":"application/zip"
             },
@@ -256,13 +260,13 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "7d3a43a90492a8931f59f081fb6199769b8ef0a0",
+                "checksum": "846535604f246252732d70627ef5fbe6d0634aff",
                 "uri": "/static/AccessR/StudyArea_Raster.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"overlay",
-                "checksum": "c1260eb7d85616321943730a4af22c4972cf7ee1",
+                "checksum": "4400cd06943b6eb441b40ae0aa324ae3639a8ea7",
                 "uri": "/static/AccessR/StudyArea_Roads.zip",
                 "content-type":"application/zip"
             },
@@ -437,13 +441,13 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "a1b1a7d6e736889413626f2912920346f9fbe174",
+                "checksum": "e9e027725def4735f0e132475d264cfbc59db455",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"points",
-                "checksum": "b1c107451b61054f22fe3a0d4bad0aab662a3158",
+                "checksum": "70bb5bf5ec21c35ac6c07357d54355b20bd15750",
                 "uri": "/static/AccessR/Points.zip",
                 "content-type":"application/zip"
             },
@@ -492,7 +496,7 @@ Set a file name for the Accessibility layer.
             "description":"""
 Change the default name for the Accessibility layer.
 """,
-                  "default":"isochrone",
+                  "default":"Isochrone",
                   "required":True,
                   "label":"Accessibility File Name",
                   "type":"string",
@@ -510,6 +514,7 @@ tool_configs = {
     "Access0" : Access0,
     "Access1" : Access1,
     "Access2" : Access2,
+#    "Copy1"   : Access1,
 }
 
 # Here's a simple function that you can use to dump the tool
