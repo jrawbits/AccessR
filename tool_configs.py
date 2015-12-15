@@ -452,6 +452,14 @@ a file of points for which isochrones are computed using the accessibility map.<
                 "content-type":"application/zip"
             },
         ],
+        "config" : {
+            "isochrone_output" : {
+                "isochronefile" : {
+                    "type" : "string",
+                    "value" : "Isochrone",
+                }
+            },  
+        },
     },
     "input" : [
         {
