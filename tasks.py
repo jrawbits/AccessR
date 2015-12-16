@@ -257,8 +257,7 @@ def DoAccess2(job,client):
     Destinations <- min(Isochrones) # RasterLayer from RasterBrick
     ResultIsochrones <- brick(list(Destinations,Isochrones))
 
-    # writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
-    writeRaster(Destinations,filename=outfile,format="GTiff",overwrite=TRUE)
+    writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
     """
     job.R.oobCallback = lambda msg, code: client.updateStatus(msg)
     job.R.r(analysis,void=True)
