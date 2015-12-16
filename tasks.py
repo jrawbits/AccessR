@@ -266,17 +266,19 @@ def DoAccess2(job,client):
     # Prepare results
     if os.path.exists(pointfilename):
         job.tempfiles.append(pointfilename)
-#     if os.path.exists(outputfile):         # File exists, so we should clean it up
-#         job.tempfiles.append(outputfile)
-    client.updateStatus("Output raster:"+outputfile)
+    if os.path.exists(outputfile):         # File exists, so we should clean it up
+        job.tempfiles.append(outputfile)
+    client.updateStatus("Output raster: "+outputfile)
     outputdata     = open(outputfile,"rb")
     resultfilename = output.get('isochronefile','Isochrone')+".tif"
-    outfiles       = { "Isochrone" : ( resultfilename, outputdata.read(),"image/tiff" ) }
+    outputkey = "Isochrone"
+    outfiles       = { outputkey : ( resultfilename, outputdata.read(),"image/tiff" ) }
     outputdata.close()
+    client.updateStatus("Output file %s length: %d"%(outfiles[outputkey][0],len(outfiles[outputkey][1])))
 
     results = {}
-    results["result_file"] = "Isochrone"
-    results["outfiles"]    = outfiles
+    results["result_file"] = outputkey
+    results["files"]       = outfiles
     return results
 
 # dispatch dictionary
