@@ -189,6 +189,11 @@ def DoCopy1(job,client):
     results["files"]       = outfiles
     return results
 
+# We have to do some reformatting of the points file since the NMTK
+# wants to deliver "MultiPoint" features, but R can only handle
+# "Point" features
+import json
+
 def DoAccess2(job,client):
     "Compute isochrones on an accessibility map from a set of points"
 
@@ -196,13 +201,23 @@ def DoAccess2(job,client):
     # Note: this tool does not use properties of the input files
     output = job.getParameters('isochrone_output')
 
-    # Retrieve accessibility file (raster)
-    # Retrieve point file for isochrones (geoJSON)
-    # Construct temporary file name (and stash for unlinking in wrapper)
-    # Run R analysis
+    # Get the raster accessibility map
     job.R.r.rasterfile = job.datafile('accessibility') # path to input raster
-    job.R.r.pointfile = job.datafile('points')         # path to input vector (for overlay)
-    job.R.r.outfile = os.tempnam()+".tif"              # temporary file to receive output
+
+    # Get the points at which to evaluate isochrones
+    points = json.load(file(job.datafile('points')))  # Work around NMTK-R incompatibility
+    for feature in points["features"]:
+        if feature["geometry"]["type"] == "MultiPoint":
+            feature["geometry"]["type"] = "Point"
+            feature["geometry"]["coordinates"] = feature["geometry"]["coordinates"][0]
+    pointfilename = os.tmpnam()+".geojson"
+    ptfile = file(pointfilename,"w")
+    json.dump(points,ptfile)
+    ptfile.close()              # Explicitly open and close the file so R can open it
+
+    job.R.r.pointfile  = pointfilename
+    outputfile         = os.tempnam()+".tif"           # Temporary file name for output
+    job.R.r.outfile    = outputfile
 
     analysis = """
     require(sp)
@@ -227,7 +242,7 @@ def DoAccess2(job,client):
     # Use cost.network to compute isochrones from sample points
     cost <- function(x,y) accCost(cost.network,c(x,y))
     vcost <- Vectorize(cost,c("x","y"))
-    Isochrones <- brick(vcost(points$coords.x1,points$coords.x2)) # RasterBrick
+    Isochrones <- brick(vcost(r.points$coords.x1,r.points$coords.x2)) # RasterBrick
 
     # accCost produces Inf for cells that can't be reached; make those NA
     values(Isochrones)[which(is.infinite(values(Isochrones)))] <- NA
@@ -242,14 +257,18 @@ def DoAccess2(job,client):
     Destinations <- min(Isochrones) # RasterLayer from RasterBrick
     ResultIsochrones <- brick(list(Destinations,Isochrones))
 
-    writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
+    # writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
+    writeRaster(Destinations,filename=outfile,format="GTiff",overwrite=TRUE)
     """
     job.R.oobCallback = lambda msg, code: client.updateStatus(msg)
     job.R.r(analysis,void=True)
 
     # Prepare results
-    if os.path.exists(outputfile):         # File exists, so we should clean it up
-        job.tempfiles.append(outputfile)
+    if os.path.exists(pointfilename):
+        job.tempfiles.append(pointfilename)
+#     if os.path.exists(outputfile):         # File exists, so we should clean it up
+#         job.tempfiles.append(outputfile)
+    client.updateStatus("Output raster:"+outputfile)
     outputdata     = open(outputfile,"rb")
     resultfilename = output.get('isochronefile','Isochrone')+".tif"
     outfiles       = { "Isochrone" : ( resultfilename, outputdata.read(),"image/tiff" ) }
