@@ -58,19 +58,25 @@ r.ugly <- rasterize(alx.network.ugly,r.study,field=0.0)
 message("Overlaying ugly roads")
 Accessibility <- overlay(Accessibility,r.ugly,fun=function(x,y) ifelse(!is.na(y),NA,x))
 
-# Buildings (0)
-message("Rasterizing buildings")
-alx.buildings <- spTransform(alx.buildings,output.CRS)
-r.buildings <- rasterize(alx.buildings,r.study,field=0.0,silent=TRUE)
-message("Overlaying buildings")
-Accessibility <- overlay(Accessibility,r.buildings,fun=function(x,y) pmin(x,y,na.rm=TRUE))
-
 # Nice Roads (increment)
-# Already transformed it
+# Because of the "na.rm" parameter, the crossings will get added back in
 message("Rasterizing nice roads")
 r.nice <- rasterize(alx.network.nice,r.study,field=2.0)
 message("Overlaying nice roads")
 Accessibility <- overlay(Accessibility,r.nice,fun=function(x,y) pmax(x,y,na.rm=TRUE))
+
+# Establish the "road mask" to ensure that ugly roads remain as hard barriers
+# This is currently (2015-12-16) hard to reproduce in the tools
+# Best strategy is to build a positive layer of all the barriers first, then
+# Overlay the good stuff on top of it
+Barriers <- Accessibility
+
+# Buildings (0)
+message("Rasterizing buildings")
+alx.buildings <- spTransform(alx.buildings,output.CRS)
+r.buildings <- rasterize(alx.buildings,r.study,field=0.01,silent=TRUE)
+message("Overlaying buildings")
+Accessibility <- overlay(Accessibility,r.buildings,fun=function(x,y) pmin(x,y,na.rm=TRUE))
 
 # Bike Facilities (on-road)
 message("Rasterizing bike lanes")
@@ -95,9 +101,9 @@ message("Overlaying sidewalks")
 r.sidewalks <- calc(r.sidewalks,function(x){ pmin(x,50) * value / 50.0 })
 Accessibility <- overlay(Accessibility,r.sidewalks,fun=function(x,y) pmax(x,y,na.rm=TRUE))
 
-# Make sure the Accessibility layer is properly trimmed to the study area
+# Make sure the Accessibility layer is properly trimmed to the Barriers/StudyArea
 message("Cleaning up study area")
-Accessibility <- overlay(Accessibility,StudyArea,fun=function(x,y) ifelse(is.na(y),NA,x))
+Accessibility <- overlay(Accessibility,Barriers,fun=function(x,y) ifelse(is.na(y),NA,x))
 
 # Save the raster files
 message("Writing Study Area raster")

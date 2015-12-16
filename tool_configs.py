@@ -450,7 +450,7 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "d7cb0db4ec86a53e71f41041deaee523ab431c8d",
+                "checksum": "96a88c4dd5e4cce8cfee00ace39fa5c62eb999ff",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
