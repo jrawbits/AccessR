@@ -245,7 +245,7 @@ def DoAccess2(job,client):
     writeRaster(ResultIsochrones,filename=outfile,format="GTiff",overwrite=TRUE)
     """
     job.R.oobCallback = lambda msg, code: client.updateStatus(msg)
-    job.R.r(analysis,void=TRUE)
+    job.R.r(analysis,void=True)
 
     # Prepare results
     if os.path.exists(outputfile):         # File exists, so we should clean it up

@@ -9,6 +9,7 @@ sample files on a Windows machine without re-running the preparation script.
 Use Rscript to run prepare.sample.data.R, then use the standard collectstatic
 management function to place the resulting files into the proper location.
 
-The checksums.txt file is part of the required files:  tool_configs.py will
-read the checksums.txt file and fill in the checksums based on the file names
-when the tool configuration is requested.
+You should verify the checksums for each sample file (checksums.txt) and
+make sure that the checksum in the tool_configs for each files is identical.
+Failure to do so will prevent the sample files from loading.
+

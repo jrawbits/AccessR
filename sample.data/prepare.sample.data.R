@@ -3,7 +3,9 @@ require(sp)
 require(raster)
 require(rgeos)  # to perform a union of features on the zones file
 
-load("ALX_NMTK_Shapes2.RData")
+message("Loading data from URL")
+load(url("https://www.dropbox.com/s/oeol5opggniyhic/ALX_NMTK_Shapes2.RData?dl=1"))
+# load("ALX_NMTK_Shapes2.RData")
 
 dir.create("../static/AccessR") # issue warning but not error if directory exists
 setwd("../static/AccessR")
@@ -31,7 +33,7 @@ message("Writing study area vector")
 lst <- data.frame(access=3)
 studyarea <- gUnaryUnion(alx.study.zones)
 studyarea <- SpatialPolygonsDataFrame(studyarea,data=lst)
-studyarea <- spTransform(studyarea,output.CRS) # Probably a NOP
+studyarea <- spTransform(studyarea,output.CRS)
 studyareafile <- "StudyArea_Vector.geojson"
 unlink(studyareafile)
 writeOGR(studyarea, studyareafile, "OGRGeoJSON", driver="GeoJSON")
@@ -51,14 +53,14 @@ Accessibility <- StudyArea
 
 # Ugly Roads (0)
 message("Rasterizing ugly roads")
-alx.network.ugly <- spTransform(alx.network.ugly,output.CRS) # Probably a NOP
+alx.network.ugly <- spTransform(alx.network.ugly,output.CRS)
 r.ugly <- rasterize(alx.network.ugly,r.study,field=0.0)
 message("Overlaying ugly roads")
 Accessibility <- overlay(Accessibility,r.ugly,fun=function(x,y) ifelse(!is.na(y),NA,x))
 
 # Buildings (0)
 message("Rasterizing buildings")
-alx.buildings <- spTransform(alx.buildings,output.CRS) # Probably a NOP
+alx.buildings <- spTransform(alx.buildings,output.CRS)
 r.buildings <- rasterize(alx.buildings,r.study,field=0.0,silent=TRUE)
 message("Overlaying buildings")
 Accessibility <- overlay(Accessibility,r.buildings,fun=function(x,y) pmin(x,y,na.rm=TRUE))
@@ -72,14 +74,14 @@ Accessibility <- overlay(Accessibility,r.nice,fun=function(x,y) pmax(x,y,na.rm=T
 
 # Bike Facilities (on-road)
 message("Rasterizing bike lanes")
-alx.bike.lanes <- spTransform(alx.bike.lanes,output.CRS) # Probably a NOP
+alx.bike.lanes <- spTransform(alx.bike.lanes,output.CRS)
 r.bikelanes <- rasterize(alx.bike.lanes,r.study,field=3.0)
-mssage("Overlaying bike lanes")
+message("Overlaying bike lanes")
 Accessibility <- overlay(Accessibility,r.bikelanes,fun=function(x,y) pmax(x,y,na.rm=TRUE))
 
 # Bike Trails (off-road)
 message("Rasterizing trails")
-alx.bike.trails <- spTransform(alx.bike.trails,output.CRS) # Probably a NOP
+alx.bike.trails <- spTransform(alx.bike.trails,output.CRS)
 r.bikepaths <- rasterize(alx.bike.trails,r.study,field=4.0)
 message("Overlaying trails")
 Accessibility <- overlay(Accessibility,r.bikepaths,fun=function(x,y) pmax(x,y,na.rm=TRUE))
@@ -87,7 +89,7 @@ Accessibility <- overlay(Accessibility,r.bikepaths,fun=function(x,y) pmax(x,y,na
 # Sidewalks
 message("Rasterizing sidewalks - Takes a LONG time!")
 value <- 3.0
-alx.sidewalks <- spTransform(alx.sidewalks,output.CRS) # Probably a NOP
+alx.sidewalks <- spTransform(alx.sidewalks,output.CRS)
 r.sidewalks <- rasterize(alx.sidewalks,r.study,getCover=TRUE,field=value)
 message("Overlaying sidewalks")
 r.sidewalks <- calc(r.sidewalks,function(x){ pmin(x,50) * value / 50.0 })
@@ -99,9 +101,11 @@ Accessibility <- overlay(Accessibility,StudyArea,fun=function(x,y) ifelse(is.na(
 
 # Save the raster files
 message("Writing Study Area raster")
-writeRaster(StudyArea,filename="StudyArea_Raster.tif",format="GTiff",overwrite=TRUE)
+studyarearasterfile <- "StudyArea_Raster.tif"
+writeRaster(StudyArea,filename=studyarearasterfile,format="GTiff",overwrite=TRUE)
 message("Writing Accessibility raster")
-writeRaster(Accessibility,filename="AccessibilityDemo.tif",format="GTiff",overwrite=TRUE)
+accessibilityrasterfile <- "AccessibilityDemo.tif"
+writeRaster(Accessibility,filename=accessibilityrasterfile,format="GTiff",overwrite=TRUE)
 
 # Compute sample file checksums
 message("Computing checksums")

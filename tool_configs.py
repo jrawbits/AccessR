@@ -52,9 +52,10 @@ def generateToolConfiguration(tool,sub_tool=None):
                 }
             ],
         }
+
         return config
     else:
-        return tool_configs[0]
+        return {}
 
 # Access0: the Accessibility Base Layer (study area)
 Access0 = {
@@ -106,8 +107,8 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"rasterize",
-                "checksum": "e8fdebe841250e4946888ff14c974a0ca0fffff7",
-                "uri": "/static/AccessR/StudyArea_Vector.zip",
+                "checksum": "a003919aa53419ab371d4448cf329b7ff143d540",
+                "uri": "/static/AccessR/StudyArea_Vector.geojson",
                 "content-type":"application/zip"
             },
         ],
@@ -269,14 +270,14 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "846535604f246252732d70627ef5fbe6d0634aff",
+                "checksum": "56df9398eb49cc2a0885621b01782ee4fa0ce7cf",
                 "uri": "/static/AccessR/StudyArea_Raster.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"overlay",
-                "checksum": "eb6a841f331b50fe2472466245e7f1e34d4ec9aa",
-                "uri": "/static/AccessR/StudyArea_Roads.zip",
+                "checksum": "b19a938397f81fc0b71aae5ec64256e406740461",
+                "uri": "/static/AccessR/SampleRoads.geojson",
                 "content-type":"application/zip"
             },
         ],
@@ -449,14 +450,14 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "d6efbb316822bff3de31821409f21f81467e52cf",
+                "checksum": "d7cb0db4ec86a53e71f41041deaee523ab431c8d",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"points",
-                "checksum": "a62dd8f3d5d97f46eb41bd37e16e346c2872e0b9",
-                "uri": "/static/AccessR/Points.zip",
+                "checksum": "007e25fb94c74f04b801d58c27213c7850f93516",
+                "uri": "/static/AccessR/SamplePoints.geojson",
                 "content-type":"application/zip"
             },
         ],
