@@ -17,4 +17,4 @@ source ../../venv/bin/activate
 python ../manage.py discover_tools
 python endRserve.py # No error if Rserve not running
 # Run from the command line without redirect to debug
-R CMD Rserve > /dev/null
+R CMD Rserve --RS-conf oob.conf > /dev/null

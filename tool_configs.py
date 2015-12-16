@@ -41,6 +41,17 @@ def generateToolConfiguration(tool,sub_tool=None):
         config = tool_configs[sub_tool]
 #         if sub_tool == "Copy1":
 #             config["info"]["name"] = "Accessibility: Copy"
+
+        # All the subtools get the same documentation section
+        config["documentation"] = {
+            "docs" : [
+                {
+                    "url" : "RawGardner_NMT_Toolkit_2011_10_26.pdf",
+                    "mimetype" : "application/pdf",
+                    "name" : "A GIS-Based Framework for Modeling Non-Motorized Transportation (2012)",
+                }
+            ],
+        }
         return config
     else:
         return tool_configs[0]
@@ -91,12 +102,11 @@ a file of points for which isochrones are computed using the accessibility map.<
 </OL>
 """,
         },
-#    "documentation" : {},
     "sample" : {
         "files": [
             {
                 "namespace":"rasterize",
-                "checksum": "f42ff59dd086e53b9e7513c6a367b0febbc87f27",
+                "checksum": "e8fdebe841250e4946888ff14c974a0ca0fffff7",
                 "uri": "/static/AccessR/StudyArea_Vector.zip",
                 "content-type":"application/zip"
             },
@@ -255,7 +265,6 @@ a file of points for which isochrones are computed using the accessibility map.<
 </OL>
 """,
         },
-#    "documentation" : {},
     "sample" : {
         "files": [
             {
@@ -266,7 +275,7 @@ a file of points for which isochrones are computed using the accessibility map.<
             },
             {
                 "namespace":"overlay",
-                "checksum": "4400cd06943b6eb441b40ae0aa324ae3639a8ea7",
+                "checksum": "eb6a841f331b50fe2472466245e7f1e34d4ec9aa",
                 "uri": "/static/AccessR/StudyArea_Roads.zip",
                 "content-type":"application/zip"
             },
@@ -436,18 +445,17 @@ a file of points for which isochrones are computed using the accessibility map.<
 </OL>
 """,
         },
-#    "documentation" : {},
     "sample" : {
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "e9e027725def4735f0e132475d264cfbc59db455",
+                "checksum": "d6efbb316822bff3de31821409f21f81467e52cf",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
             {
                 "namespace":"points",
-                "checksum": "70bb5bf5ec21c35ac6c07357d54355b20bd15750",
+                "checksum": "a62dd8f3d5d97f46eb41bd37e16e346c2872e0b9",
                 "uri": "/static/AccessR/Points.zip",
                 "content-type":"application/zip"
             },

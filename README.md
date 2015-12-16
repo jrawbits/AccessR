@@ -54,3 +54,7 @@ daemon mode.  To close Rserve cleanly, you can activate the NMTK virtual Python
 environment and then use the included Python script with 'python endRserve.py'.
 Note that pyRserve must be installed as a Python package to use that command 
 (see requirements.txt).
+
+To use out-of-band messages, you need to configure RServe so there's a special
+configuration file.  Plus, you need to set up suitable callbacks within the
+application code (we've done that).

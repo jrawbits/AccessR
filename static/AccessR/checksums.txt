@@ -1,6 +1,0 @@
-e9e027725def4735f0e132475d264cfbc59db455  AccessibilityDemo.tif
-70bb5bf5ec21c35ac6c07357d54355b20bd15750  Points.zip
-846535604f246252732d70627ef5fbe6d0634aff  StudyArea_Raster.tif
-4400cd06943b6eb441b40ae0aa324ae3639a8ea7  StudyArea_Roads.zip
-f42ff59dd086e53b9e7513c6a367b0febbc87f27  StudyArea_Vector.zip
-b6df71fd875adf6f467092cce44f9d09aaaf40e8  checksums.txt
