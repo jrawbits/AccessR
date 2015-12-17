@@ -19,7 +19,7 @@ tools = [
     "Access0",
     "Access1",
     "Access2",
-#    "Copy1",
+    "BugDemo",
 ]
 
 # Access0 prepares a raster base Accessibility layer from a polygon area
@@ -450,7 +450,7 @@ a file of points for which isochrones are computed using the accessibility map.<
         "files": [
             {
                 "namespace":"accessibility",
-                "checksum": "96a88c4dd5e4cce8cfee00ace39fa5c62eb999ff",
+                "checksum": "e04c4a3d41edaf53635befe01ae46caa1a2937b7",
                 "uri": "/static/AccessR/AccessibilityDemo.tif",
                 "content-type":"image/tif"
             },
@@ -524,6 +524,75 @@ Change the default name for the Accessibility layer.
         ],
     }
 
+# Access0: the Accessibility Base Layer (study area)
+BugDemo = {
+    "info" : {
+        "name" : "Raster: Bug Demo",
+        "version" : "0.1",
+        "text" :
+"""
+This tool simply copies its input to its output.  It will demonstrate a bug
+reading raster results back into the NMTK when the raster is in anything
+other than longlat projection
+""",
+        },
+    "sample" : {
+        "files": [
+            {
+                "namespace":"rasterbug",
+                "checksum": "546013c680459cb5abca622cc08943d6888399e9",
+                "uri": "/static/AccessR/StudyArea_Projected.tif",
+                "content-type":"image/tiff"
+            },
+        ],
+        "config" : {
+            "studyarea_output" : {
+                "studyareafile" : {
+                    "type":"string",
+                    "value":"BugDemo",
+                },
+            },
+        },
+    },
+    "input" : [
+        {
+            "type" : "File",            # Elements that can be read in multiple rows from a file
+            "name" : "rasterbug",       # 'name' and 'namespace' are probably redundant
+            "namespace" : "rasterbug",
+            "description" :
+"""
+Expecting a raster file that will simply be copied to the output.
+""",
+            "primary" : True,           # True if...
+            "required" : True,           # If true, an actual file must be provided
+            "label" : "Input Raster (projected)",
+        },
+        ],
+    "output" : [
+        {
+            "type":"ConfigurationPage",
+            "name":"studyarea_output",
+            "namespace":"studyarea_output",
+            "label":"Base Map Output",
+            "description":"""
+Set a file name for the output file.
+""",
+              "elements":[
+                {
+            "description":"""
+Change the default name for the output file.
+""",
+                  "default":"BugDemo",
+                  "required":True,
+                  "label":"Output File Name",
+                  "type":"string",
+                  "name":"studyareafile",
+                },
+              ],
+            },
+        ],
+    }
+
 # Expect this to be an array with a config dictionary name in it if no subtools; otherwise
 # it's a dictionary with the key being the subtool name (from the "tools" array) and the
 # value being the dictionary that actually contains the tool config.
@@ -531,7 +600,7 @@ tool_configs = {
     "Access0" : Access0,
     "Access1" : Access1,
     "Access2" : Access2,
-#    "Copy1"   : Access1,
+    "BugDemo" : BugDemo,
 }
 
 # Here's a simple function that you can use to dump the tool
