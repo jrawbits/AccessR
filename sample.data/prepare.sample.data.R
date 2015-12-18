@@ -53,49 +53,49 @@ StudyArea <- rasterize(studyarea,r.study,field=value)
 # up from there through the better and better layers
 Accessibility <- StudyArea
 
+##################################################
+# Add Accessibility layers
+##################################################
+
 # Ugly Roads (0)
 message("Rasterizing ugly roads")
 alx.network.ugly <- spTransform(alx.network.ugly,output.CRS)
 r.ugly <- rasterize(alx.network.ugly,r.study,field=0.0)
-message("Overlaying ugly roads")
-Accessibility <- overlay(Accessibility,r.ugly,fun=function(x,y) ifelse(!is.na(y),0.0,x))
+Accessibility <- overlay(Accessibility,r.ugly,fun=function(x,y) pmin(x,y,na.rm=TRUE))
 
-# Buildings (0.01)
+# Buildings (0)
 message("Rasterizing buildings")
 alx.buildings <- spTransform(alx.buildings,output.CRS)
-r.buildings <- rasterize(alx.buildings,r.study,field=0.01,silent=TRUE)
-message("Overlaying buildings")
+r.buildings <- rasterize(alx.buildings,r.study,field=0.0,silent=TRUE)
 Accessibility <- overlay(Accessibility,r.buildings,fun=function(x,y) pmin(x,y,na.rm=TRUE))
 
 # Nice Roads (increment)
-# Because of the "na.rm" parameter, the crossings will get added back in
-message("Rasterizing nice roads")
+message("Rasterizing nice roads") # already spatially transformed
 r.nice <- rasterize(alx.network.nice,r.study,field=2.0)
-message("Overlaying nice roads")
 Accessibility <- overlay(Accessibility,r.nice,fun=function(x,y) pmax(x,y,na.rm=TRUE))
 
 # Bike Facilities (on-road)
 message("Rasterizing bike lanes")
 alx.bike.lanes <- spTransform(alx.bike.lanes,output.CRS)
 r.bikelanes <- rasterize(alx.bike.lanes,r.study,field=3.0)
-message("Overlaying bike lanes")
 Accessibility <- overlay(Accessibility,r.bikelanes,fun=function(x,y) pmax(x,y,na.rm=TRUE))
-
-# Sidewalks
-message("Rasterizing sidewalks - Takes a LONG time!")
-value <- 3.0
-alx.sidewalks <- spTransform(alx.sidewalks,output.CRS)
-r.sidewalks <- rasterize(alx.sidewalks,r.study,getCover=TRUE,field=value)
-message("Overlaying sidewalks")
-r.sidewalks <- calc(r.sidewalks,function(x){ pmin(x,50) * value / 50.0 })
-Accessibility <- overlay(Accessibility,r.sidewalks,fun=function(x,y) pmax(x,y,na.rm=TRUE))
 
 # Bike Trails (off-road)
 message("Rasterizing trails")
 alx.bike.trails <- spTransform(alx.bike.trails,output.CRS)
 r.bikepaths <- rasterize(alx.bike.trails,r.study,field=4.0)
-message("Overlaying trails")
 Accessibility <- overlay(Accessibility,r.bikepaths,fun=function(x,y) pmax(x,y,na.rm=TRUE))
+
+# Sidewalks
+message("Rasterizing sidewalks - Takes a LONG time!")
+value = 4.0
+alx.sidewalks <- spTransform(alx.sidewalks,output.CRS)
+r.sidewalks <- rasterize(alx.sidewalks,r.study,getCover=TRUE) # field ignored with getCover
+r.sidewalks <- calc(r.sidewalks,function(x){ pmin(x,50) * value / 50.0 })
+Accessibility <- overlay(Accessibility,r.sidewalks,fun=function(x,y) pmax(x,y,na.rm=TRUE))
+
+# Clip back to study area
+Accessibility <- overlay(Accessibility,StudyArea,fun=function(x,y) ifelse(is.na(y),NA,x))
 
 # Save the raster files
 message("Writing Study Area raster")
@@ -107,8 +107,9 @@ accessibilityrasterfile <- "AccessibilityDemo.tif"
 writeRaster(Accessibility,filename=accessibilityrasterfile,format="GTiff",overwrite=TRUE)
 
 # Create a "buggy" raster
+message("Writing projected Study Area raster")
 projected.raster <- projectRaster(StudyArea,crs=CRS("+init=epsg:26918"))
-BuggyFile <- "Projected_StudyArea.tif"
+BuggyFile <- "StudyArea_Projected.tif"
 writeRaster(projected.raster,filename=BuggyFile,format="GTiff",overwrite=TRUE)
 
 # Compute sample file checksums
@@ -130,4 +131,3 @@ t <- raster(accessibilityrasterfile)
 message("Projected Study Area Raster")
 t <- raster(BuggyFile)
 message("All done.")
-

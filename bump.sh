@@ -12,9 +12,12 @@ sudo truncate -s 0 /var/www/nmtk/logs/celeryd-nmtk.log
 sleep 12
 # Restart task queue (celery)
 sudo service celeryd-nmtk start
-# Python tasks: rediscover tools, then close and restart Rserve
+# Python tasks: recollect static, rediscover tools, then close and restart Rserve
 source ../../venv/bin/activate
-python ../manage.py discover_tools
+pushd ..
+python manage.py collectstatic
+python manage.py discover_tools
+popd
 python endRserve.py # No error if Rserve not running
-# Run from the command line without redirect to debug
+# Run Rserve from the command line without redirect to debug
 R CMD Rserve --RS-conf oob.conf > /dev/null
