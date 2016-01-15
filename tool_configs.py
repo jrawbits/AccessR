@@ -540,7 +540,7 @@ other than longlat projection
         "files": [
             {
                 "namespace":"rasterbug",
-                "checksum": "546013c680459cb5abca622cc08943d6888399e9",
+                "checksum": "ee31c8ef9b1e8b92518d8fcba59dba20ed27b2ef",
                 "uri": "/static/AccessR/StudyArea_Projected.tif",
                 "content-type":"image/tiff"
             },
