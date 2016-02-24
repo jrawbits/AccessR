@@ -100,4 +100,4 @@ list of tools in local_settings.py.  It calls the root NMTK deployment script
 to reload the NMTK environment and it also starts Rserve.  Like the root NMTK
 deployment script, it supports an option "-c" which will clear log files.
 
-    bash deploy.sh  # -c optional to clear log files
+    sudo bash deploy.sh  # -c optional to clear log files
