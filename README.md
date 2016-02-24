@@ -71,6 +71,7 @@ using the  function 'install.packages':
 
     sudo R  # run R as an administrator
     install.packages(c("sp","raster","rgdal","gdistance","Rserve"))
+    quit()
 
 For accessing Rserve from the Python environment, the pyRserve package
 is used.  Activate the NMTK python environment from the NMTK root folder,
