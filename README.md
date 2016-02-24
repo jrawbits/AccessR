@@ -91,6 +91,7 @@ prior to running any of the tools.  This is the start command:
 To close Rserve cleanly, you can activate the NMTK virtual Python
 environment and then use the included Python script
 
+    source ../../venv/bin/activate
     python endRserve.py
 
 Finally, the included "deploy.sh" script will set everything going once
