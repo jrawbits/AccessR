@@ -50,6 +50,11 @@ mirrors you can find at https://cran.r-project.org/mirrors.html:
 
     sudo echo "deb https://<my.favorite.cran.mirror>/bin/linux/ubuntu trusty/" > /etc/apt/sources.list.d/cran.list
     
+The repository is secured by a specific signature key.  You need to
+install the key by doing this:
+
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+
 Then you can run these commands to install R itself, plus the development
 environment for compiliing packages from source:
 
