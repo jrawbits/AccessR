@@ -41,14 +41,20 @@ the accessibility map.
 
 As the name suggests, the tool uses the R Statistical Environment to
 perform its computations.  So you'll need to install a recent version
-of R from one of the CRAM mirrors (see http://cran.r-project.org).
+of R from one of the CRAN mirrors (see http://cran.r-project.org).
 For Ubuntu, you can look here: https://cran.r-project.org/bin/linux/ubuntu/
 
-In addition to installing R itself, you will need the R development
-environment to compile R packages from source.  You can install on Ubuntu
-using apt-get:
+On Ubuntu 14.04 ("trusty") you can do the following to connect a
+R repository (replacing "<my.favorite.cran.mirror>" with one of the
+mirrors you can find at https://cran.r-project.org/mirrors.html:
 
-    sudo apt-get install r-base-dev
+    sudo echo "deb https://<my.favorite.cran.mirror>/bin/linux/ubuntu trusty/" > /etc/apt/sources.list.d/cran.list
+    
+Then you can run these commands to install R itself, plus the development
+environment for compiliing packages from source:
+
+    sudo apt-get update # to read the repository
+    sudo apt-get install r-base r-base-dev
 
 You will need several R packages (specifically: sp, raster, rgdal,
 gdistance).  You will also need Rserve to allow the NMTK environment
@@ -62,10 +68,10 @@ using the  function 'install.packages':
     install.packages(c("sp","raster","rgdal","gdistance","Rserve"))
 
 For accessing Rserve from the Python environment, the pyRserve package
-is used.  Activate the NMTK python environment by going to the NMTK root
-folder, then install pyRserve using 'pip install pyRserve', or by using
-'pip install -r requirements.txt' Note that pyRserve requires numpy,
-which the base NMTK installs.  The complete sequence:
+is used.  Activate the NMTK python environment from the NMTK root folder,
+then install pyRserve using 'pip install -r requirements.txt' Note that
+pyRserve requires numpy, which the base NMTK installs.  The complete
+sequence for installing pyRserve:
 
     source ../../venv/bin/activate
     pip install -r requirements.txt
