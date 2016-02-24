@@ -42,32 +42,49 @@ the accessibility map.
 As the name suggests, the tool uses the R Statistical Environment to
 perform its computations.  So you'll need to install a recent version
 of R from one of the CRAM mirrors (see http://cran.r-project.org).
+For Ubuntu, you can look here: https://cran.r-project.org/bin/linux/ubuntu/
 
-You will need several R packagesi (sp,raster,rgdal,gdistance).  It is
-most convenient to install these from within "sudo R" (the R text GUI
-running with admin privileges) using the R function install.packages:
+In addition to installing R itself, you will need the R development
+environment to compile R packages from source.  You can install on Ubuntu
+using apt-get:
 
-install.packages(c("sp","raster","rgdal","gdistance"))
+    sudo apt-get install r-base-dev
 
-R is accessed through the Rserve package. Installation is easy, see the
-Rserve documentation: https://www.rforge.net/Rserve/doc.html
+You will need several R packages (specifically: sp, raster, rgdal,
+gdistance).  You will also need Rserve to allow the NMTK environment
+to run R commands.  Installation of Rserve is easy, see the Rserve
+documentation: https://www.rforge.net/Rserve/doc.html
+
+It is most convenient to install these packages from within R
+using the  function 'install.packages':
+
+    sudo R  # run R as an administrator
+    install.packages(c("sp","raster","rgdal","gdistance","Rserve"))
 
 For accessing Rserve from the Python environment, the pyRserve package
-is used.  Install it in the NMTK virtual environment using 'pip install
-pyRserve', or by using 'pip install -r requirements.txt' Note that
-pyRserve requires numpy, which the base NMTK installs.
+is used.  Activate the NMTK python environment by going to the NMTK root
+folder, then install pyRserve using 'pip install pyRserve', or by using
+'pip install -r requirements.txt' Note that pyRserve requires numpy,
+which the base NMTK installs.  The complete sequence:
+
+    source ../../venv/bin/activate
+    pip install -r requirements.txt
 
 The tool uses "out-of-band" (oob) messages to generate status updates,
-so you should start Rserve prior to running any of the tools using the
-included configuration file oob.conf, like this:
+so you should start Rserve using the included configuration file oob.conf
+prior to running any of the tools.  This is the start command:
 
-R CMD Rserve --RS-conf oob.conf
+    R CMD Rserve --RS-conf oob.conf
 
 To close Rserve cleanly, you can activate the NMTK virtual Python
 environment and then use the included Python script
 
-python endRserve.py'.
+    python endRserve.py
 
-Finally, the included "bump.sh" script will set everything going once
+Finally, the included "deploy.sh" script will set everything going once
 you have all the pieces installed and have added` "AccessR" to the NMTK's
-list of tools in local_settings.py.
+list of tools in local_settings.py.  It calls the root NMTK deployment script
+to reload the NMTK environment and it also starts Rserve.  Like the root NMTK
+deployment script, it supports an option "-c" which will clear log files.
+
+    bash deploy.sh  # -c optional to clear log files
