@@ -39,6 +39,16 @@ the accessibility map.
 
 *Installation*
 
+The AccessR accessibility analysis functions are designed as a tool for the
+Nonmotorized Toolkit (https://github.com/chander/nmtk).  To use this code,
+you'll need a working installation of the Nonmotorized Toolkit first.
+
+To add these tools to the Nonmotorized Toolkit, the entire set of repository
+code should be placed in a subfolder of the NMTK_apps folder of the NMTK
+called "AccessR", and the "AccessR" tool should be added to the list of
+available tools in local_settings.py (see the NMTK documentation for details).
+The tool will be enabled when the deploy.sh script is run (see below).
+
 As the name suggests, the tool uses the R Statistical Environment to
 perform its computations.  So you'll need to install a recent version
 of R from one of the CRAN mirrors (see http://cran.r-project.org).
@@ -70,7 +80,7 @@ It is most convenient to install these packages from within R
 using the  function 'install.packages':
 
     sudo R  # run R as an administrator
-    install.packages(c("sp","raster","rgdal","gdistance","Rserve"))
+    install.packages(c("sp","raster","rgdal","gdistance","Rserve","RSclient"))
     quit()
 
 For accessing Rserve from the Python environment, the pyRserve package
@@ -82,17 +92,29 @@ sequence for installing pyRserve:
     source ../../venv/bin/activate
     pip install -r requirements.txt
 
-The tool uses "out-of-band" (oob) messages to generate status updates,
-so you should start Rserve using the included configuration file oob.conf
-prior to running any of the tools.  This is the start command:
+The Rserve configuration file (/etc/Rserv.conf) needs to be adjusted with
+consistent permissions for the web server and to set up "out-of-band" (oob)
+messages to pass status updates from within R itself.  The Rserv.conf file
+should contain these instructions:
 
-    R CMD Rserve --RS-conf oob.conf
+    # Configuration for RServe
+    control enable
 
-To close Rserve cleanly, you can activate the NMTK virtual Python
-environment and then use the included Python script
+    # Change uid/gid to www-data
+    su server
+    gid 33
+    uid 33
 
-    source ../../venv/bin/activate
-    python endRserve.py
+    # Enable Out-of-Band Messages
+    oob enable
+    eval require(Rserve)
+
+There are two shell script files available to start and stop Rserve, and
+there will also soon be an init.d script that is automatically installed to
+stop and restart Rserve on system startup and shutdown.
+
+    bash startRserve.sh
+    bash stopRserve.sh
 
 Finally, the included "deploy.sh" script will set everything going once
 you have all the pieces installed and have added` "AccessR" to the NMTK's
