@@ -55,7 +55,7 @@ of R from one of the CRAN mirrors (see http://cran.r-project.org).
 For Ubuntu, you can look here: https://cran.r-project.org/bin/linux/ubuntu/
 
 On Ubuntu 14.04 ("trusty") you can do the following to connect a
-R repository (replacing "<my.favorite.cran.mirror>" with one of the
+R repository (replacing "&lt;my.favorite.cran.mirror&gt;" with one of the
 mirrors you can find at https://cran.r-project.org/mirrors.html:
 
     sudo echo "deb https://<my.favorite.cran.mirror>/bin/linux/ubuntu trusty/" > /etc/apt/sources.list.d/cran.list
