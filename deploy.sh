@@ -9,7 +9,7 @@ echo "Updating/Installing required python modules (AccessR)."
 pip install --upgrade -r requirements.txt|grep -v up-to-date
 
 echo "Installing required R packages"
-
+sudo Rscript Rpackages.R
 
 echo "Restarting Rserve"
 bash stopRserve.sh
