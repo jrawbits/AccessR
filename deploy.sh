@@ -8,6 +8,12 @@ pushd ../..
 source venv/bin/activate # required for python dependencies
 popd
 
+echo "Installing R system"
+sudo cp $DIR/system/cran.list /etc/apt/sources.list.d/
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+sudo apt-get -y install libcurl4-gnutls-dev libxml2-dev libssl-dev # probably have these already
+sudo apt-get -y install r-base r-recommended r-base-dev
+
 echo "Installing required python modules (AccessR)"
 pip install --upgrade -r "$DIR/system/requirements.txt" | grep -v up-to-date
 
