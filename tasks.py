@@ -37,7 +37,9 @@ def DoAccess0(job,client):
     studyarea = readOGR(infile,layer="OGRGeoJSON")
     self.oobSend("Loaded data; starting analysis.")
     ex <- extent(studyarea)
-    r.study <- raster(ex,pixels_x,pixels_y,crs=studyarea@proj4string)
+    self.oobSend(paste("CRS:",studyarea@proj4string))
+    r.study <- raster(ex,pixels_x,pixels_y)
+    projection(r.study) <- studyarea@proj4string
     r.study <- rasterize(studyarea,r.study,field=value)
     self.oobSend("Analysis complete; writing output.")
     writeRaster(r.study,filename=outfile,format="GTiff",overwrite=TRUE)
