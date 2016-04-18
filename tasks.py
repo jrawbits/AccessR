@@ -36,10 +36,10 @@ def DoAccess0(job,client):
     require(raster)
     studyarea = readOGR(infile,layer="OGRGeoJSON")
     self.oobSend("Loaded data; starting analysis.")
+    output.CRS <- CRS("+init=epsg:4326")
+    studyarea = spTransform(studyarea,output.CRS)
     ex <- extent(studyarea)
-    self.oobSend(paste("CRS:",studyarea@proj4string))
-    r.study <- raster(ex,pixels_x,pixels_y)
-    projection(r.study) <- studyarea@proj4string
+    r.study <- raster(ex,pixels_x,pixels_y,crs=output.CRS)
     r.study <- rasterize(studyarea,r.study,field=value)
     self.oobSend("Analysis complete; writing output.")
     writeRaster(r.study,filename=outfile,format="GTiff",overwrite=TRUE)
@@ -129,33 +129,33 @@ def DoAccess1(job,client):
     results["files"]       = outfiles
     return results
 
-def BugDemo(job,client):
-    "Just copy a raster to output (for debugging projection problem)"
-
-    output = job.getParameters('studyarea_output')
-    job.R.r.rasterfile = job.datafile('rasterbug')  # path to input raster
-    outputfile         = os.tempnam()+".tif"        # Temporary file name for output
-    job.R.r.outfile    = outputfile
-
-    analysis = """
-    require(raster)
-    r.raster <- raster(rasterfile)
-    writeRaster(r.raster,filename=outfile,format="GTiff",overwrite=TRUE)
-    """
-    job.R.r(analysis,void=True)
-
-    # Prepare results
-    if os.path.exists(outputfile):         # File exists, so we should clean it up
-        job.tempfiles.append(outputfile)
-    outputdata             = open(outputfile,"rb")
-    resultfilename         = output.get('studyareafile','BugDemo')+".tif"
-    outfiles               = { "bugdemo" : ( resultfilename, outputdata.read(),"image/tiff" ) }
-    outputdata.close()
-
-    results = {}
-    results["result_file"] = "bugdemo"
-    results["files"]       = outfiles
-    return results
+# def BugDemo(job,client):
+#     "Just copy a raster to output (for debugging projection problem)"
+# 
+#     output = job.getParameters('studyarea_output')
+#     job.R.r.rasterfile = job.datafile('rasterbug')  # path to input raster
+#     outputfile         = os.tempnam()+".tif"        # Temporary file name for output
+#     job.R.r.outfile    = outputfile
+# 
+#     analysis = """
+#     require(raster)
+#     r.raster <- raster(rasterfile)
+#     writeRaster(r.raster,filename=outfile,format="GTiff",overwrite=TRUE)
+#     """
+#     job.R.r(analysis,void=True)
+# 
+#     # Prepare results
+#     if os.path.exists(outputfile):         # File exists, so we should clean it up
+#         job.tempfiles.append(outputfile)
+#     outputdata             = open(outputfile,"rb")
+#     resultfilename         = output.get('studyareafile','BugDemo')+".tif"
+#     outfiles               = { "bugdemo" : ( resultfilename, outputdata.read(),"image/tiff" ) }
+#     outputdata.close()
+# 
+#     results = {}
+#     results["result_file"] = "bugdemo"
+#     results["files"]       = outfiles
+#     return results
 
 # We have to do some reformatting of the raw JSON points file since the
 # NMTK sometimes wants to deliver "MultiPoint" features, but R can
@@ -255,7 +255,7 @@ doSubTool = {
     "Access0" : DoAccess0,
     "Access1" : DoAccess1,
     "Access2" : DoAccess2,
-    "BugDemo" : BugDemo,
+#    "BugDemo" : BugDemo,
     }
 
 @task(ignore_result=False)
